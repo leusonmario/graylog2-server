@@ -1,4 +1,5 @@
-sudo: false
+
+sudo: required
 language: java
 jdk:
   - oraclejdk7
@@ -25,7 +26,6 @@ deploy:
     secure: cYHsMgnAI08sz9G1Qb7ku2HoTaSn/OBBmjBzyYswX0/Kvb2asQcEGZGOEfYNTGOwdN6DP7p3axi5o+FPw2MLGGpBVz3tAtwYWTbzJR8kCEuGwb8N6abpdkGIn4AfifQ+vbn8zJrIB6HfGGRpDM9QnEjJFtpJO+2SjODzbZzkymE=
   bucket: graylog2-builds
   region: eu-west-1
-  skip_cleanup: true
   local-dir: target/assembly
   on:
     repo: Graylog2/graylog2-server
@@ -39,3 +39,22 @@ env:
   global:
   - secure: MYZwUwFkHwWfJ79JKyDK8VrYVcsax4t+7atMLLVNI4CDxTWZzR4qFGUfauf+7fDEmnGYbMHDRSnzzhVtSR0ZSuvWoSkZ+v62ASmSfglzI2GcMD/VBREq+9TlLasSIa+wR60VvgYwxJnawwJlV6sbjmetT6MWug7/icdi5KgfDlQ=
   - secure: r0enVlGBPjqaGfNrD1b6YxgRaSp/v39ZMKQFs/C0RtRKliZ5LVo7kS4lL0tLQoqMAXJel0NgsVH6j1P6428uLQDxqKmCsNZiX0VS9K3Z0iq5NG4x/5QidxyXjHefSGmpquLmZbM094xhtvdou3NEfkJTKbxHu3ML9i9ScMn5+vA=
+
+script:
+- mvn clean cobertura:cobertura -Dtest=IndicesTest#testAliasTarget -DfailIfNoTests=false
+
+
+before_deploy:
+- tar -zcvf coverage-result.tar.gz /home/travis/build/leusonmario/graylog2-server/target/site/cobertura
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "AR7NXQnoeAOcXlIop9Lw/mjmbIZk/1taicEDZ+3aS8cybdTv/6DmJYz5eE0gshzYxvhl8DgvJjiYx79wdrb0pkG2+2xigSoR3xIMYnSdbHEj5dzVnang/QxS9Vhz0zkRiyZqofP58Jsgrxliq45YfYqmVFJb4CdCpiOY0jHrhjUprlyn2x6WUGvRCgEiPHdGm17ANCFv2kiKz9MXLzHylxHReeFUoNYbIxM4/M1jCAyqwByz/hL2vzoPa/mCpTQBVeOY8N9+XlU/qqVoZUNR7cKfThwnRtO9o//po1u7hI8ISXAHndWZxYE9apR8Mtu/kFiESA/SnWB53ONw9o8/Z9Z7iBLHMY9Fc9q/Qu+YoCxjhqXQcz92WxUyhY817NnhSiKYla8PSqGqsOS2oeuc7IqY3NNTEGMab8fyozxms0F/mQHINufChoXBGdXZ4+w1ltNPQINIoCXPU2w/MjV3IuUEu4q789P7RAh5V9RlkTnZvOzIMxRZZDceuld4zKVr4a+HsV9rpjQTcDUL84CrZb4VIKabFY/qN8qDVa7MmKEalH0aj2iZmCm1cjMMtFeJeNJufZvPdqLdt05xW9y8p7dpn5S/o5o+cjIEF/LkMa5n+GmvEpDw8hTVtzvfqYjfm9sY+hjvtK1PvhGAknEnGYcHZeu9dVpPdeO7v9Yo7KU="
+
+  file: coverage-result.tar.gz
+  file_glob: true
+  overwrite: true
+  skip_cleanup: true
+  on:
+    tags: true
